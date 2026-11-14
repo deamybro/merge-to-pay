@@ -1,0 +1,7 @@
+[package]
+name = "github_pr"
+type = "bin"
+authors = ["penguinpecker"]
+compiler_version = ">=1.0.0"
+
+[dependencies]

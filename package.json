@@ -1,0 +1,18 @@
+{
+  "name": "merge-to-pay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Merge-to-Pay — an agent that pays GitHub bounties in USDC on Base only after zkVerify has verified a zkTLS proof that the PR was merged.",
+  "workspaces": [
+    "packages/sdk",
+    "packages/contracts",
+    "apps/merge-to-pay"
+  ],
+  "scripts": {
+    "test": "npm test --workspace apps/merge-to-pay"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}

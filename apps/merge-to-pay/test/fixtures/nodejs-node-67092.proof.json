@@ -1,0 +1,65 @@
+{
+  "ref": "nodejs/node#67092",
+  "slots": {
+    "repo": "nodejs/node",
+    "pr": 67092
+  },
+  "attestorUrl": "wss://attestor.reclaimprotocol.org:444/ws",
+  "data": {
+    "mergedAt": "null"
+  },
+  "attestor": "0x244897572368eadf65bfbc5aec98d8e5443a9072",
+  "claim": {
+    "provider": "http",
+    "parameters": "{\"headers\":{\"Accept-Encoding\":\"identity\",\"User-Agent\":\"reclaim/0.0.1\",\"X-GitHub-Api-Version\":\"2022-11-28\"},\"method\":\"GET\",\"responseMatches\":[{\"type\":\"regex\",\"value\":\"\\\"merged_at\\\":(?<mergedAt>null|\\\"[0-9TZ:-]{20}\\\")\\\\},\\\"body\\\":\\\"?(?:verity-payout: #(?<issue>[1-9][0-9]{0,8}) (?<payee>0x[0-9a-fA-F]{40}))?\"}],\"responseRedactions\":[{\"regex\":\"\\\"merged_at\\\":(?<mergedAt>null|\\\"[0-9TZ:-]{20}\\\")\\\\},\\\"body\\\":\\\"?(?:verity-payout: #(?<issue>[1-9][0-9]{0,8}) (?<payee>0x[0-9a-fA-F]{40}))?\"}],\"url\":\"https://api.github.com/repos/nodejs/node/issues/67092\"}",
+    "owner": "0xab0680a3ab68e040d48bcd05df7c64f24ba18ab8",
+    "timestampS": 1793217641,
+    "context": "{\"extractedParameters\":{\"mergedAt\":\"null\"},\"providerHash\":\"0x8b771f73d978d1f89f61b047324a9136b0971b446ebef6fc6b2a14cd0fea620b\"}",
+    "identifier": "0x692b8fd2550178aa5b84ad987d874ffa4559e809f28fae578e43c26a0be9f6ac",
+    "epoch": 1
+  },
+  "signatures": {
+    "attestorAddress": "0x244897572368eadf65bfbc5aec98d8e5443a9072",
+    "claimSignature": "0x8cf67556d8646d193b7423ac62bc3d9b849b96e8f2f48b1e5c09565973fd63e304751a9a6ddc79a56375894c45090e44f213490d327dfc1f188afe7d12ee4bef1b",
+    "resultSignature": "0xfce54acbd1dcf55f4ed54fb2688db1218957a8a9a7fdf827834d034a239801f7740719f89cae26aa96ce9feaba8ccac3639fa9ae2349196ffee45c279fbaea1d1b"
+  },
+  "raw": {
+    "request": {
+      "request": {
+        "id": 2324547783,
+        "host": "api.github.com",
+        "port": 443,
+        "geoLocation": "",
+        "proxySessionId": ""
+      },
+      "data": {
+        "provider": "http",
+        "parameters": "{\"headers\":{\"Accept-Encoding\":\"identity\",\"User-Agent\":\"reclaim/0.0.1\",\"X-GitHub-Api-Version\":\"2022-11-28\"},\"method\":\"GET\",\"responseMatches\":[{\"type\":\"regex\",\"value\":\"\\\"merged_at\\\":(?<mergedAt>null|\\\"[0-9TZ:-]{20}\\\")\\\\},\\\"body\\\":\\\"?(?:verity-payout: #(?<issue>[1-9][0-9]{0,8}) (?<payee>0x[0-9a-fA-F]{40}))?\"}],\"responseRedactions\":[{\"regex\":\"\\\"merged_at\\\":(?<mergedAt>null|\\\"[0-9TZ:-]{20}\\\")\\\\},\\\"body\\\":\\\"?(?:verity-payout: #(?<issue>[1-9][0-9]{0,8}) (?<payee>0x[0-9a-fA-F]{40}))?\"}],\"url\":\"https://api.github.com/repos/nodejs/node/issues/67092\"}",
+        "owner": "0xab0680a3ab68e040d48bcd05df7c64f24ba18ab8",
+        "timestampS": 1793217641,
+        "context": ""
+      },
+      "transcript": [],
+      "signatures": {
+        "requestSignature": "0x516c27b3448d7a5d82237f811915357910a9f003fd34ac5ea74bc341ae6184bb6c1033718d58563e746ecd1f56f3d3cb6d0cbe91cf68c2cd3d7439c1032b216e1b"
+      },
+      "zkEngine": 2,
+      "fixedServerIV": "0xa8e87ab1d496b9eb002e7d58",
+      "fixedClientIV": "0xe4995fa2cc08b68e334096ff"
+    },
+    "claim": {
+      "provider": "http",
+      "parameters": "{\"headers\":{\"Accept-Encoding\":\"identity\",\"User-Agent\":\"reclaim/0.0.1\",\"X-GitHub-Api-Version\":\"2022-11-28\"},\"method\":\"GET\",\"responseMatches\":[{\"type\":\"regex\",\"value\":\"\\\"merged_at\\\":(?<mergedAt>null|\\\"[0-9TZ:-]{20}\\\")\\\\},\\\"body\\\":\\\"?(?:verity-payout: #(?<issue>[1-9][0-9]{0,8}) (?<payee>0x[0-9a-fA-F]{40}))?\"}],\"responseRedactions\":[{\"regex\":\"\\\"merged_at\\\":(?<mergedAt>null|\\\"[0-9TZ:-]{20}\\\")\\\\},\\\"body\\\":\\\"?(?:verity-payout: #(?<issue>[1-9][0-9]{0,8}) (?<payee>0x[0-9a-fA-F]{40}))?\"}],\"url\":\"https://api.github.com/repos/nodejs/node/issues/67092\"}",
+      "owner": "0xab0680a3ab68e040d48bcd05df7c64f24ba18ab8",
+      "timestampS": 1793217641,
+      "context": "{\"extractedParameters\":{\"mergedAt\":\"null\"},\"providerHash\":\"0x8b771f73d978d1f89f61b047324a9136b0971b446ebef6fc6b2a14cd0fea620b\"}",
+      "identifier": "0x692b8fd2550178aa5b84ad987d874ffa4559e809f28fae578e43c26a0be9f6ac",
+      "epoch": 1
+    },
+    "signatures": {
+      "attestorAddress": "0x244897572368eadf65bfbc5aec98d8e5443a9072",
+      "claimSignature": "0x8cf67556d8646d193b7423ac62bc3d9b849b96e8f2f48b1e5c09565973fd63e304751a9a6ddc79a56375894c45090e44f213490d327dfc1f188afe7d12ee4bef1b",
+      "resultSignature": "0xfce54acbd1dcf55f4ed54fb2688db1218957a8a9a7fdf827834d034a239801f7740719f89cae26aa96ce9feaba8ccac3639fa9ae2349196ffee45c279fbaea1d1b"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+--- a/src/server/handlers/init.ts
++++ b/src/server/handlers/init.ts
+@@ -1,5 +1,6 @@
+ import { getBytes } from 'ethers'
+ 
++import { AttestorVersion } from '#src/proto/api.ts'
+ import { getAttestorAddress } from '#src/server/utils/generics.ts'
+ import type { RPCHandler } from '#src/types/index.ts'
+ import { assertValidAuthRequest } from '#src/utils/auth.ts'
+@@ -21,7 +22,8 @@
+ 		throw AttestorError.badRequest('Unsupported signature type')
+ 	}
+ 
+-	if(initRequest.clientVersion <= 0) {
++	// Verity: only accept attestor clients >= 3.2.0.
++	if(initRequest.clientVersion < AttestorVersion.ATTESTOR_VERSION_3_2_0) {
+ 		throw AttestorError.badRequest('Unsupported client version')
+ 	}
+ 

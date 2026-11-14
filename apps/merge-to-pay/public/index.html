@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merge-to-Pay</title>
+<meta name="description" content="An agent that pays GitHub bounties in USDC on Base only after zkVerify has verified a zkTLS proof that the pull request was merged.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d0c; --panel: #121513; --line: #232a26; --text: #e8ece9; --muted: #8a968f; --dim: #5b6660;
+    --mint: #7cf2c0; --mint-dim: #1f3a2f; --amber: #f2c46d; --red: #ff7b72; --blue: #8ab4ff;
+    --mono: 'JetBrains Mono', ui-monospace, monospace; --serif: 'Instrument Serif', Georgia, serif; --sans: 'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 var(--sans); }
+  a { color: var(--mint); text-decoration: none; border-bottom: 1px solid var(--mint-dim); }
+  a:hover { border-bottom-color: var(--mint); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  header { padding: 64px 0 32px; border-bottom: 1px solid var(--line); }
+  .eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--mint); }
+  h1 { font: 400 clamp(44px, 8vw, 84px)/0.95 var(--serif); margin: 18px 0 18px; letter-spacing: -.01em; }
+  h1 em { color: var(--mint); }
+  .lede { max-width: 640px; color: var(--muted); font-size: 17px; margin: 0; }
+  h2 { font: 400 32px/1.1 var(--serif); margin: 0 0 6px; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
+  section { padding: 44px 0; border-bottom: 1px solid var(--line); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+  .grid { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .cell { background: var(--panel); padding: 14px 16px; min-width: 0; }
+  .k { font: 500 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; }
+  .v { font: 400 13px/1.4 var(--mono); overflow-wrap: anywhere; }
+  form { display: flex; gap: 10px; flex-wrap: wrap; padding: 16px; }
+  input { flex: 1 1 320px; min-width: 0; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 13px 14px; font: 14px var(--mono); }
+  input:focus { outline: none; border-color: var(--mint); }
+  button { background: var(--mint); color: #06140d; border: 0; border-radius: 8px; padding: 13px 20px; font: 600 14px var(--sans); cursor: pointer; transition: transform .12s ease, opacity .12s ease; }
+  button:active { transform: scale(.97); }
+  button:disabled { opacity: .5; cursor: progress; }
+  .hint { color: var(--dim); font: 12px/1.5 var(--mono); padding: 0 16px 16px; }
+  .hint code { color: var(--muted); }
+  ol.steps { list-style: none; margin: 0; padding: 4px 16px 16px; font: 13px/1.5 var(--mono); }
+  ol.steps li { display: grid; grid-template-columns: 64px 18px 1fr; gap: 8px; padding: 5px 0; color: var(--muted); animation: in .25s ease both; }
+  ol.steps li .t { color: var(--dim); text-align: right; }
+  ol.steps li .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); margin-top: 6px; }
+  ol.steps li.err .dot { background: var(--red); } ol.steps li.err { color: var(--red); }
+  @keyframes in { from { opacity: 0; transform: translateY(3px); } }
+  .result { margin: 0 16px 16px; border-top: 1px solid var(--line); padding-top: 16px; display: none; }
+  .badge { display: inline-block; font: 700 12px/1 var(--mono); letter-spacing: .08em; padding: 7px 10px; border-radius: 6px; margin-right: 10px; }
+  .PAY, .ELIGIBLE { background: var(--mint-dim); color: var(--mint); }
+  .DECLINE { background: #3a2f1a; color: var(--amber); }
+  .ERROR { background: #3a1d1b; color: var(--red); }
+  .table { width: 100%; border-collapse: collapse; font: 12.5px/1.45 var(--mono); }
+  .table th { text-align: left; color: var(--dim); font-weight: 500; letter-spacing: .06em; text-transform: uppercase; font-size: 11px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  .table td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
+  .table tr:last-child td { border-bottom: 0; }
+  .scroll { overflow-x: auto; }
+  .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; counter-reset: s; }
+  .flow div { padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+  .flow div::before { counter-increment: s; content: '0' counter(s); display: block; font: 500 12px var(--mono); color: var(--mint); margin-bottom: 10px; }
+  .flow b { display: block; font-weight: 600; margin-bottom: 4px; }
+  .flow span { color: var(--muted); font-size: 13.5px; }
+  pre { margin: 0; padding: 16px; font: 13px/1.55 var(--mono); color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .muted { color: var(--muted); }
+  footer { padding: 36px 0 56px; color: var(--dim); font: 12px var(--mono); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Agent · zkTLS · zkVerify · Base</div>
+    <h1>Merge it.<br><em>Prove it.</em> Get paid.</h1>
+    <p class="lede">Merge-to-Pay is an agent that pays GitHub bounties in USDC on Base, and only after zkVerify has verified a zero-knowledge proof that GitHub itself reported the pull request as merged. No maintainer has to press "pay", and nobody has to trust the agent.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Run the agent</h2>
+    <p class="sub">Give it any public GitHub pull request. It proves what api.github.com returned, verifies that proof on zkVerify mainnet, and pays if a funded bounty matches.</p>
+    <div class="panel">
+      <form id="f">
+        <input id="ref" name="ref" autocomplete="off" spellcheck="false" placeholder="owner/repo#123  or  https://github.com/owner/repo/pull/123" aria-label="Pull request">
+        <button id="go" type="submit">Prove &amp; decide</button>
+      </form>
+      <div class="hint">To claim a bounty, the PR description must start with <code>verity-payout: #&lt;issue&gt; 0x&lt;your Base address&gt;</code>. Results for a merged PR are permanent and shown again on later requests.</div>
+      <ol class="steps" id="steps"></ol>
+      <div class="result" id="result"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Live configuration</h2>
+    <p class="sub">Everything the agent trusts, and everything you need to check it yourself.</p>
+    <div class="grid" id="cfg"><div class="cell"><div class="k">loading</div><div class="v muted">…</div></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Recent runs</h2>
+    <p class="sub">Every decision links to its proof on zkVerify and, when paid, to the payout on Base.</p>
+    <div class="panel scroll"><table class="table"><thead><tr><th>PR</th><th>Decision</th><th>zkVerify</th><th>Aggregation → Base</th><th>Payout</th></tr></thead><tbody id="recent"><tr><td colspan="5" class="muted">loading…</td></tr></tbody></table></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="sub">Five steps from merge to money. The agent never holds the bounty and cannot choose who gets paid.</p>
+    <div class="flow">
+      <div><b>Fund</b><span>A maintainer locks USDC in the escrow for one issue, with an expiry and the first PR number allowed to claim it.</span></div>
+      <div><b>zkTLS</b><span>Our attestor witnesses a real TLS session with api.github.com and signs what GitHub returned: merged_at and the payout line.</span></div>
+      <div><b>Circuit</b><span>A Noir circuit checks the attestor's signature over that response and outputs 7 public facts: attestor, repo, PR, merged, issue, payee, time.</span></div>
+      <div><b>zkVerify</b><span>The UltraHonk proof is verified on zkVerify mainnet through Kurier, then aggregated and published on Base.</span></div>
+      <div><b>Pay</b><span>The escrow checks the aggregation on Base and pays the payee fixed by the proof. The agent sends the transaction, but anyone could.</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>What the proof says</h2>
+    <p class="sub">The exact claim zkVerify checks, as served by this agent.</p>
+    <div class="panel"><pre id="stmt">…</pre></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Merge-to-Pay · open source (MIT) · <a href="https://github.com/penguinpecker/merge-to-pay">github.com/penguinpecker/merge-to-pay</a> · built for zkVerify Agent Games 2026</div>
+</footer>
+
+<script>
+const $ = (id) => document.getElementById(id)
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+const short = (h) => (h ? `${h.slice(0, 10)}…${h.slice(-6)}` : '')
+const link = (href, text) => (href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(text)}</a>` : '<span class="muted">—</span>')
+const basescan = (kind, x) => `https://basescan.org/${kind}/${x}`
+const usdc = (a) => (a == null ? '' : `${(Number(a) / 1e6).toLocaleString(undefined, { maximumFractionDigits: 6 })} USDC`)
+
+async function loadConfig() {
+  try {
+    const c = await (await fetch('/api/agent')).json()
+    const cells = [
+      ['Attestor (signer)', c.attestor ? link(basescan('address', c.attestor), c.attestor) : '—'],
+      ['Escrow on Base', c.escrow ? link(basescan('address', c.escrow), c.escrow) : 'not configured'],
+      ['Agent relayer', c.relayer ? link(basescan('address', c.relayer), c.relayer) : '—'],
+      ['Circuit vkHash', esc(c.vkHash || '—')],
+      ['Merge age limit', `${Math.round(c.maxMergeAgeS / 60)} min after merge`],
+      ['Fresh proofs today', `${c.daily.used} / ${c.daily.cap}`],
+    ]
+    $('cfg').innerHTML = cells.map(([k, v]) => `<div class="cell"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')
+    $('stmt').textContent = c.statement
+  } catch { $('cfg').innerHTML = '<div class="cell"><div class="v muted">agent unreachable</div></div>' }
+}
+
+function aggCell(a) {
+  if (!a || !a.status) return '<span class="muted">not requested</span>'
+  if (a.status === 'published') return link(basescan('tx', a.txHash), `published · #${a.aggregationId}`)
+  return esc(`${a.status}${a.aggregationId != null ? ' · #' + a.aggregationId : ''}`)
+}
+function payCell(p, decision) {
+  if (p && p.txHash) return link(basescan('tx', p.txHash), `${usdc(p.amount)} paid`)
+  if (decision === 'PAY') return esc(p && p.error ? 'retrying: ' + p.error.slice(0, 60) : `${usdc(p && p.amount)} · waiting for Base`)
+  return '<span class="muted">—</span>'
+}
+async function loadRecent() {
+  try {
+    const rows = await (await fetch('/api/recent')).json()
+    $('recent').innerHTML = rows.length ? rows.map((r) => `<tr>
+      <td>${link(`https://github.com/${r.facts.repo}/pull/${r.facts.pr}`, `${r.facts.repo}#${r.facts.pr}`)}</td>
+      <td><span class="badge ${esc(r.decision)}">${esc(r.decision)}</span><span class="muted">${esc(r.reason)}</span></td>
+      <td>${r.zkverify.explorer ? link(r.zkverify.explorer, short(r.zkverify.txHash)) : esc(r.zkverify.status)}</td>
+      <td>${aggCell(r.aggregation)}</td>
+      <td>${payCell(r.payout, r.decision)}</td></tr>`).join('') : '<tr><td colspan="5" class="muted">no runs yet</td></tr>'
+  } catch { $('recent').innerHTML = '<tr><td colspan="5" class="muted">agent unreachable</td></tr>' }
+}
+
+const LABEL = { classify: 'reading the PR from GitHub', zktls: 'zkTLS session with api.github.com', prove: 'proving the claim in the Noir circuit', escrow: 'reading the bounty on Base', kurier: 'zkVerify via Kurier', poll: 'waiting for zkVerify finality' }
+function step(text, cls = '') {
+  const li = document.createElement('li'); li.className = cls
+  li.innerHTML = `<span class="t">${((performance.now() - t0) / 1000).toFixed(1)}s</span><span class="dot"></span><span>${esc(text)}</span>`
+  $('steps').appendChild(li)
+}
+function showResult(r) {
+  const el = $('result'); el.style.display = 'block'
+  if (r.decision === 'ERROR') { el.innerHTML = `<span class="badge ERROR">ERROR</span>${esc(r.reason)} — ${esc(r.message)}`; return }
+  const f = r.facts || {}
+  const rows = [
+    ['Pull request', link(`https://github.com/${f.repo}/pull/${f.pr}`, `${f.repo}#${f.pr}`)],
+    ['Merged (proven)', String(f.merged)],
+    ['Bounty issue', f.issue ? `#${f.issue}` : 'no payout line'],
+    ['Payee (proven)', f.payee ? link(basescan('address', f.payee), f.payee) : '—'],
+  ]
+  if (r.zkverify) rows.push(['zkVerify', r.zkverify.explorer ? link(r.zkverify.explorer, `${r.zkverify.status} · ${short(r.zkverify.txHash)}`) : esc(r.zkverify.status)])
+  if (r.aggregation) rows.push(['Aggregation → Base', aggCell(r.aggregation)])
+  if (r.payout) rows.push(['Payout', payCell(r.payout, r.decision)])
+  if (r.zktls) rows.push(['Attested by', esc(r.zktls.attestor)])
+  el.innerHTML = `<p><span class="badge ${esc(r.decision)}">${esc(r.decision)}</span>${esc(r.reason)}${r.cached ? ' <span class="muted">(stored result)</span>' : ''}</p>
+    <div class="grid">${rows.map(([k, v]) => `<div class="cell"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div>`
+}
+
+let t0 = 0
+$('f').addEventListener('submit', async (e) => {
+  e.preventDefault()
+  const ref = $('ref').value.trim(); if (!ref) return
+  $('go').disabled = true; $('steps').innerHTML = ''; $('result').style.display = 'none'; t0 = performance.now()
+  step('request sent')
+  try {
+    const res = await fetch('/api/agent', { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/x-ndjson' }, body: JSON.stringify({ pr: ref }) })
+    if (!res.headers.get('content-type')?.includes('ndjson')) { showResult(await res.json()); return }
+    const reader = res.body.getReader(), dec = new TextDecoder(); let buf = ''
+    for (;;) {
+      const { value, done } = await reader.read(); if (done) break
+      buf += dec.decode(value, { stream: true })
+      let i
+      while ((i = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, i); buf = buf.slice(i + 1); if (!line.trim()) continue
+        const m = JSON.parse(line)
+        if (m.step) step(`${LABEL[m.step] || m.step}${m.detail ? ' · ' + m.detail : ''}`)
+        else { if (m.decision === 'ERROR') step(m.reason, 'err'); showResult(m) }
+      }
+    }
+  } catch (err) { step(String(err.message || err), 'err') }
+  finally { $('go').disabled = false; loadRecent(); loadConfig() }
+})
+loadConfig(); loadRecent()
+</script>
+</body>
+</html>

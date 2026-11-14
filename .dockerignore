@@ -1,0 +1,10 @@
+# Docker build context = repo root (apps/merge-to-pay/Dockerfile). Whitelist only what the image needs;
+# secrets, research notes and other apps never leave the machine.
+*
+!package.json
+!package-lock.json
+!packages/sdk
+!apps/merge-to-pay
+**/node_modules
+**/.env*
+**/.secrets

@@ -1,0 +1,28 @@
+{
+  "name": "@verity/merge-to-pay",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Merge-to-Pay — GitHub bounties paid in USDC on Base only after zkVerify has verified a zkTLS proof that the PR was merged.",
+  "scripts": {
+    "test": "node --test",
+    "gen-template": "node scripts/gen-template.mjs",
+    "gen-circuit": "node scripts/gen-circuit.mjs",
+    "prove-circuit": "node scripts/prove-circuit.mjs",
+    "start": "node src/server.mjs",
+    "e2e-local": "node scripts/e2e-local.mjs",
+    "make-auth-token": "node scripts/make-auth-token.mjs"
+  },
+  "dependencies": {
+    "@noir-lang/noir_js": "1.0.0-beta.6",
+    "@vercel/blob": "2.8.2",
+    "@verity/sdk": "0.1.0",
+    "canonicalize": "2.1.0",
+    "ethers": "^6.16.0",
+    "viem": "2.57.13"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}
