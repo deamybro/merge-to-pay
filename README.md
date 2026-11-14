@@ -119,7 +119,7 @@ npm ci && npm test                       # 49 agent tests (circuit tests need na
 cd packages/contracts && npx hardhat test test/merge-to-pay.fork.test.js   # 16 escrow tests on a Base fork
 ```
 
-**Deploy:** both services run on Railway from Dockerfiles. The agent builds from the repo root (`railway.json`) and the attestor from `services/attestor`. The agent needs:
+**Deploy:** both services run on Railway from Dockerfiles. The agent builds from the repo root with `RAILWAY_DOCKERFILE_PATH=apps/merge-to-pay/Dockerfile`, and the attestor from `services/attestor`. The agent needs:
 
 - **Settings:** `VERITY_ATTESTOR_URL`, `ATTESTOR_ADDRESS`, `VK_HASH`, `ESCROW_ADDRESS`, `BASE_RPC_URL`
 - **Secrets:** `ATTESTOR_AUTH_TOKEN`, `KURIER_API_KEY`, `RELAYER_PRIVATE_KEY`

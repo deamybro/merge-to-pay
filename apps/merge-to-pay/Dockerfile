@@ -1,9 +1,9 @@
-# Merge-to-Pay agent. Build context = REPO ROOT (needs packages/sdk); Railway reads /railway.json.
-# Native barretenberg 0.84.0 needs glibc >= 2.38: trixie ships 2.41.
+# Merge-to-Pay agent. Build context = REPO ROOT (needs packages/sdk); on Railway set RAILWAY_DOCKERFILE_PATH=apps/merge-to-pay/Dockerfile.
+# Native barretenberg 0.84.0 needs glibc >= 2.38 (trixie ships 2.41) and shells out to jq + gzip to read the circuit JSON.
 FROM node:24-trixie-slim
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates curl \
+  && apt-get install -y --no-install-recommends ca-certificates curl jq \
   && rm -rf /var/lib/apt/lists/*
 
 # bb v0.84.0 amd64-linux from the official aztec-packages release, pinned by sha256.
@@ -28,7 +28,7 @@ WORKDIR /app/apps/merge-to-pay
 RUN node --input-type=module -e "import { proveClaim } from './src/prover.mjs'; import { readFileSync } from 'node:fs'; \
   const r = await proveClaim(JSON.parse(readFileSync('test/fixtures/nodejs-node-49999.proof.json', 'utf8'))); \
   console.log('CRS baked; proof', (r.proofHex.length - 2) / 2, 'B in', Math.round(r.ms.prove), 'ms')" > /tmp/bake.log 2>&1 \
-  || (cat /tmp/bake.log; exit 1); cat /tmp/bake.log; ls -la /app/crs
+  || { cat /tmp/bake.log; exit 1; }; cat /tmp/bake.log; ls -la /app/crs
 
 EXPOSE 8080
 CMD ["node", "src/server.mjs"]
