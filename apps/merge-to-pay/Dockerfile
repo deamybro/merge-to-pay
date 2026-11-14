@@ -27,8 +27,8 @@ WORKDIR /app/apps/merge-to-pay
 # circuit needs into /app/crs, and proves the image can prove. No CRS network calls at runtime.
 RUN node --input-type=module -e "import { proveClaim } from './src/prover.mjs'; import { readFileSync } from 'node:fs'; \
   const r = await proveClaim(JSON.parse(readFileSync('test/fixtures/nodejs-node-49999.proof.json', 'utf8'))); \
-  console.log('CRS baked; proof', (r.proofHex.length - 2) / 2, 'B in', Math.round(r.ms.prove), 'ms')" \
-  && ls -la /app/crs
+  console.log('CRS baked; proof', (r.proofHex.length - 2) / 2, 'B in', Math.round(r.ms.prove), 'ms')" > /tmp/bake.log 2>&1 \
+  || (cat /tmp/bake.log; exit 1); cat /tmp/bake.log; ls -la /app/crs
 
 EXPOSE 8080
 CMD ["node", "src/server.mjs"]

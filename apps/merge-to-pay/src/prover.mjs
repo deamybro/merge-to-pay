@@ -1,6 +1,6 @@
 // Circuit proof for a signed claim: witness via noir_js, then NATIVE bb (BB_BIN) prove --zk + verify,
 // in a per-run tmp dir, with the CRS at BB_CRS. One proof at a time (withLock): a fresh run is ~1 GB.
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync } from 'node:fs'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { tmpdir, homedir } from 'node:os'
@@ -34,6 +34,7 @@ export async function proveClaim({ claim, signatures }) {
   const { witness: w, returnValue } = await execute(inputs)
   ms.witness = performance.now() - t
   if (returnValue.some((v, i) => BigInt(v) !== pubs[i])) throw new Error('circuit outputs differ from the expected public inputs')
+  mkdirSync(CRS(), { recursive: true }) // bb refuses a missing --crs_path, and downloads the points it needs into it
   const dir = mkdtempSync(join(tmpdir(), 'm2p-'))
   try {
     writeFileSync(join(dir, 'witness.gz'), w)
