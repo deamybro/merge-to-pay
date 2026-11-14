@@ -10,7 +10,7 @@ A maintainer locks USDC against an issue. A contributor opens a PR whose descrip
 | **Escrow (Base mainnet)** | [`0x28BC4e71Da0994cCbc4F9F472c06E164A67Fce3c`](https://basescan.org/address/0x28BC4e71Da0994cCbc4F9F472c06E164A67Fce3c), UUPS proxy, source verified on Sourcify (exact match) |
 | **Attestor (zkTLS witness)** | `wss://attestor-production-c3cae0f4.up.railway.app/ws`, signer `0x7c2bD76BEc433acd4158a72DB39fE5454801f07D` |
 | **Circuit vkHash (zkVerify)** | `0x611f230e5bc66119945ede9e09e2a87d89fcdb5aaced9444a8c15c316a48a74f` |
-| **First mainnet proof** | [zkVerify tx `0x4f9556…9036`](https://zkverify.subscan.io/extrinsic/0x4f955653b8a4d02c37623bb2d3206a7f76cb64566e688f228e0a3da4327e9036), aggregation `149137` in domain `2`, root posted on Base |
+| **First bounty paid** | [Issue #1](https://github.com/penguinpecker/merge-to-pay/issues/1) (5 USDC) → [PR #2](https://github.com/penguinpecker/merge-to-pay/pull/2) merged 12:49 UTC → [zkVerify tx `0xd5b3…eaa4`](https://zkverify.subscan.io/extrinsic/0xd5b37b6af9da42cf055f1d920dd1fdbcc1d9b8ec1123fc092c94f9bbe0deeaa4) → aggregation `149141` on Base → [release by the agent, 5 USDC to the payee](https://basescan.org/tx/0x828d52e2329319a084a21913353988b13605d0be98ead6e06ade979bbaec4ee2) at 12:58 UTC. A self-funded demo: the payee is the funding wallet. This exact release is replayed on a Base fork in `packages/contracts/test` |
 
 ## The problem
 
@@ -116,7 +116,7 @@ services/attestor      attestor Dockerfile + patch
 
 ```bash
 npm ci && npm test                       # 49 agent tests (circuit tests need nargo 1.0.0-beta.6 + bb 0.84.0 in ~/.cache/verity-noir)
-cd packages/contracts && npx hardhat test test/merge-to-pay.fork.test.js   # 16 escrow tests on a Base fork
+cd packages/contracts && npx hardhat test test/merge-to-pay.fork.test.js   # 17 escrow tests on a Base fork, incl. the real payout
 ```
 
 **Deploy:** both services run on Railway from Dockerfiles. The agent builds from the repo root with `RAILWAY_DOCKERFILE_PATH=apps/merge-to-pay/Dockerfile`, and the attestor from `services/attestor`. The agent needs:
